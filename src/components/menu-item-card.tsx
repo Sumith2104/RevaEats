@@ -43,30 +43,30 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
           src={item.image_url}
           alt={item.name}
           fill
-          sizes="(max-width: 768px) 50vw, 33vw"
+          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
           data-ai-hint={item.name.split(' ').slice(0, 2).join(' ')}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-3 text-primary-foreground">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-4 text-primary-foreground">
             <div className="flex justify-between items-end">
                 <div className="space-y-1">
-                     <h3 className="text-sm font-bold">{item.name}</h3>
-                     <p className="text-base font-extrabold text-primary">₹{item.price.toFixed(2)}</p>
+                     <h3 className="text-lg font-bold drop-shadow-md">{item.name}</h3>
+                     <p className="text-xl font-extrabold text-white drop-shadow-md">₹{item.price.toFixed(2)}</p>
                 </div>
                 <div>
                     {quantity === 0 ? (
-                        <Button onClick={handleAdd} size="icon" className="rounded-full h-9 w-9 bg-primary text-primary-foreground">
-                            <Plus className="h-5 w-5" />
+                        <Button onClick={handleAdd} size="icon" className="rounded-full h-10 w-10 bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-transform hover:scale-105">
+                            <Plus className="h-6 w-6" />
                         </Button>
                     ) : (
-                        <div className="flex items-center gap-2 bg-background/80 backdrop-blur-sm rounded-full p-1">
-                            <Button variant="ghost" size="icon" className="rounded-full h-7 w-7 text-primary" onClick={handleDecrease}>
-                                {quantity === 1 ? <Trash2 className="h-4 w-4 text-destructive" /> : <Minus className="h-4 w-4" />}
+                        <div className="flex items-center gap-1 bg-card/80 backdrop-blur-sm rounded-full p-1 shadow-lg">
+                            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 text-primary" onClick={handleDecrease}>
+                                {quantity === 1 ? <Trash2 className="h-4 w-4 text-destructive" /> : <Minus className="h-5 w-5" />}
                             </Button>
-                            <span className="font-bold w-5 text-center text-card-foreground">{quantity}</span>
-                            <Button variant="ghost" size="icon" className="rounded-full h-7 w-7 text-primary" onClick={handleIncrease}>
-                                <Plus className="h-4 w-4" />
+                            <span className="font-bold w-6 text-center text-card-foreground text-lg">{quantity}</span>
+                            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 text-primary" onClick={handleIncrease}>
+                                <Plus className="h-5 w-5" />
                             </Button>
                         </div>
                     )}
@@ -76,4 +76,3 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
     </Card>
   );
 }
-
