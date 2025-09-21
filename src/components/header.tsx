@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Flame, ShoppingCart } from "lucide-react";
+import { Flame, ShoppingCart, Bell, User } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -29,7 +29,19 @@ export function Header() {
             Campus Kitchen Express
           </h1>
         </Link>
-        <nav>
+        <nav className="flex items-center gap-2">
+          <Button asChild variant="ghost" className="relative h-10 w-10 rounded-full">
+            <Link href="#">
+              <Bell className="w-6 h-6" />
+              <span className="sr-only">View Notifications</span>
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" className="relative h-10 w-10 rounded-full">
+            <Link href="#">
+              <User className="w-6 h-6" />
+              <span className="sr-only">View Profile</span>
+            </Link>
+          </Button>
           <Button asChild variant="ghost" className="relative h-10 w-10 rounded-full">
             <Link href="/cart">
               <ShoppingCart className="w-6 h-6" />
