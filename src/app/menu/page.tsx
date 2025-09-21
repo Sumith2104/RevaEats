@@ -43,7 +43,7 @@ export default async function MenuPage() {
           <h2 className="text-3xl font-bold font-headline mb-6 border-b-2 border-primary pb-2">
             {category}
           </h2>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {(menuItems as MenuItem[])
               .filter(item => item.category === category)
               .map(item => (
