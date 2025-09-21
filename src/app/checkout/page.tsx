@@ -25,12 +25,12 @@ export default function CheckoutPage() {
     const storedOrderId = sessionStorage.getItem('pendingOrderId');
     if (storedOrderId) {
       setPendingOrderId(storedOrderId);
-    } else if (cartCount === 0 && !storedOrderId) {
+    } else if (cartCount === 0 && !pendingOrderId) {
       // If not in payment flow and cart is empty, redirect
       const timer = setTimeout(() => router.push('/menu'), 1000);
       return () => clearTimeout(timer);
     }
-  }, [user, cartCount, router]);
+  }, [user, cartCount, router, pendingOrderId]);
 
   const handlePlaceOrder = async () => {
     setIsPlacingOrder(true);
@@ -81,8 +81,8 @@ export default function CheckoutPage() {
     setIsConfirmingPayment(true);
 
     clearCart();
-    router.push(`/order/${pendingOrderId}/status`);
     sessionStorage.removeItem('pendingOrderId');
+    router.push(`/order/${pendingOrderId}/status`);
   };
 
   // State 1: User has not started checkout, or cart is empty
