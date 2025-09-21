@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { login } from "@/lib/auth-actions";
 import {
   Card,
@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
@@ -18,7 +17,7 @@ import { SubmitButton } from "@/components/submit-button";
 
 export default function LoginPage() {
   const initialState = { message: null };
-  const [state, dispatch] = useFormState(login, initialState);
+  const [state, dispatch] = useActionState(login, initialState);
 
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
