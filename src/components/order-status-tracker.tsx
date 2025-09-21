@@ -13,7 +13,7 @@ const statuses: OrderStatus[] = ['New', 'Preparing', 'Ready for Pickup', 'Comple
 
 const statusDetails: Record<OrderStatus, { icon: React.ElementType; label: string; description: string }> = {
     'New': { icon: ShoppingBasket, label: 'Order Placed', description: 'We have received your order.' },
-    'Preparing': { icon: ChefHat, label: 'Preparing', description: 'Our chefs are working their magic.' },
+    'Preparing': { icon: ChefHat, label: 'Our chefs are working their magic.', description: 'Your meal is being prepared.' },
     'Ready for Pickup': { icon: PartyPopper, label: 'Ready for Pickup', description: 'Your order is ready. Come and get it!' },
     'Completed': { icon: PartyPopper, label: 'Completed', description: 'Your order has been picked up.' },
 };
@@ -34,23 +34,28 @@ export function OrderStatusTracker({ initialStatus, orderId }: OrderStatusTracke
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
-    const channel = supabase
-      .channel(`order_status_${orderId}`)
-      .on<Database['public']['Tables']['orders']['Row']>(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` },
-        (payload) => {
-          if (payload.new.status) {
-            setCurrentStatus(payload.new.status);
-          }
-        }
-      )
-      .subscribe();
+    
+    const fetchStatus = async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('status')
+        .eq('id', orderId)
+        .single();
+
+      if (data?.status && data.status !== currentStatus) {
+        setCurrentStatus(data.status);
+      }
+      if(error) {
+        console.error("Error fetching order status:", error);
+      }
+    };
+    
+    const interval = setInterval(fetchStatus, 1000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(interval);
     };
-  }, [orderId]);
+  }, [orderId, currentStatus]);
 
   const currentStatusIndex = statuses.indexOf(currentStatus);
 
