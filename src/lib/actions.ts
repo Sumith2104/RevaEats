@@ -26,6 +26,9 @@ export async function placeOrder(formData: FormData): Promise<{ orderId?: string
   const total = cartItems.reduce((acc, { item, quantity }) => acc + item.price * quantity, 0);
 
   const supabase = createSupabaseServerClient();
+  
+  // Generate a 4-digit OTP
+  const orderOtp = Math.floor(1000 + Math.random() * 9000).toString();
 
   try {
     // 1. Create a new `orders` record
@@ -35,6 +38,7 @@ export async function placeOrder(formData: FormData): Promise<{ orderId?: string
         ordered_by_phone: phone,
         status: 'New',
         total: total,
+        order_otp: orderOtp,
       })
       .select()
       .single();
@@ -88,4 +92,23 @@ export async function getOrderStatus(phone: string): Promise<{ id: string, statu
         return null;
     }
     return data;
+}
+
+export async function getOrderDetails(orderId: string): Promise<{ order: Database['public']['Tables']['orders']['Row'] | null; error: string | null }> {
+  if (!orderId) {
+    return { order: null, error: 'Order ID is required.' };
+  }
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', orderId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching order details:', error);
+    return { order: null, error: 'Could not fetch order details.' };
+  }
+
+  return { order: data, error: null };
 }

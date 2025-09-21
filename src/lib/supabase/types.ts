@@ -45,6 +45,7 @@ export type Database = {
           ordered_by_phone: string
           status: "New" | "Preparing" | "Ready for Pickup" | "Completed"
           total: number
+          order_otp: string | null
         }
         Insert: {
           id?: string
@@ -52,6 +53,7 @@ export type Database = {
           ordered_by_phone: string
           status?: "New" | "Preparing" | "Ready for Pickup" | "Completed"
           total: number
+          order_otp?: string | null
         }
         Update: {
           id?: string
@@ -59,6 +61,7 @@ export type Database = {
           ordered_by_phone?: string
           status?: "New" | "Preparing" | "Ready for Pickup" | "Completed"
           total?: number
+          order_otp?: string | null
         }
       }
       order_items: {

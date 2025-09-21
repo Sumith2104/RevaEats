@@ -4,19 +4,27 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
 import { cn } from "@/lib/utils";
 import { ChefHat, ShoppingBasket, PartyPopper } from "lucide-react";
+import type { Database } from "@/lib/supabase/types";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-type OrderStatus = 'New' | 'Preparing' | 'Ready for Pickup';
+type OrderStatus = Database['public']['Enums']['order_status'];
 
-const statuses: OrderStatus[] = ['New', 'Preparing', 'Ready for Pickup'];
+const statuses: OrderStatus[] = ['New', 'Preparing', 'Ready for Pickup', 'Completed'];
 
 const statusDetails: Record<OrderStatus, { icon: React.ElementType; label: string; description: string }> = {
     'New': { icon: ShoppingBasket, label: 'Order Placed', description: 'We have received your order.' },
     'Preparing': { icon: ChefHat, label: 'Preparing', description: 'Our chefs are working their magic.' },
     'Ready for Pickup': { icon: PartyPopper, label: 'Ready for Pickup', description: 'Your order is ready. Come and get it!' },
+    'Completed': { icon: PartyPopper, label: 'Completed', description: 'Your order has been picked up.' },
 };
 
-export function OrderStatusTracker() {
-  const [currentStatus, setCurrentStatus] = useState<OrderStatus>('New');
+interface OrderStatusTrackerProps {
+    initialStatus: OrderStatus;
+    orderId: string;
+}
+
+export function OrderStatusTracker({ initialStatus, orderId }: OrderStatusTrackerProps) {
+  const [currentStatus, setCurrentStatus] = useState<OrderStatus>(initialStatus);
   const { clearCart } = useCart();
   
   useEffect(() => {
@@ -24,27 +32,25 @@ export function OrderStatusTracker() {
     clearCart();
   }, [clearCart]);
 
-  // Simulate real-time status updates
   useEffect(() => {
-    const updateStatus = (nextStatus: OrderStatus) => {
-      const delay = Math.random() * 5000 + 3000; // 3-8 seconds
-      const timer = setTimeout(() => {
-        setCurrentStatus(nextStatus);
-      }, delay);
-      return timer;
-    };
-
-    let timers: NodeJS.Timeout[] = [];
-    if (currentStatus === 'New') {
-      timers.push(updateStatus('Preparing'));
-    } else if (currentStatus === 'Preparing') {
-      timers.push(updateStatus('Ready for Pickup'));
-    }
+    const supabase = createSupabaseBrowserClient();
+    const channel = supabase
+      .channel(`order_status_${orderId}`)
+      .on<Database['public']['Tables']['orders']['Row']>(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` },
+        (payload) => {
+          if (payload.new.status) {
+            setCurrentStatus(payload.new.status);
+          }
+        }
+      )
+      .subscribe();
 
     return () => {
-      timers.forEach(clearTimeout);
+      supabase.removeChannel(channel);
     };
-  }, [currentStatus]);
+  }, [orderId]);
 
   const currentStatusIndex = statuses.indexOf(currentStatus);
 
@@ -52,9 +58,9 @@ export function OrderStatusTracker() {
     <div className="pt-6">
         <div className="relative flex flex-col gap-10">
             <div className="absolute left-6 top-6 bottom-6 w-1 bg-border rounded-full -z-10" />
-            {statuses.map((status, index) => {
+            {statuses.filter(s => s !== 'Completed').map((status, index) => {
                 const isActive = index <= currentStatusIndex;
-                const { icon: Icon, label, description } = statusDetails[status];
+                const { icon: Icon, label, description } = statusDetails[status as Exclude<OrderStatus, 'Completed'>];
 
                 return (
                     <div key={status} className="flex items-start gap-5">
