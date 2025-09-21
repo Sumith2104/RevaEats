@@ -81,7 +81,7 @@ export async function getOrderStatus(phone: string): Promise<{ id: string, statu
         .from('orders')
         .select('id, status')
         .eq('ordered_by_phone', phone)
-        .order('created_at', { ascending: false })
+        .order('order_time', { ascending: false })
         .limit(1)
         .single();
     if (error || !data) {

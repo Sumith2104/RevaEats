@@ -41,21 +41,21 @@ export type Database = {
       orders: {
         Row: {
           id: string
-          created_at: string
+          order_time: string
           ordered_by_phone: string
           status: "New" | "Preparing" | "Ready for Pickup" | "Completed"
           total: number
         }
         Insert: {
           id?: string
-          created_at?: string
+          order_time?: string
           ordered_by_phone: string
           status?: "New" | "Preparing" | "Ready for Pickup" | "Completed"
           total: number
         }
         Update: {
           id?: string
-          created_at?: string
+          order_time?: string
           ordered_by_phone?: string
           status?: "New" | "Preparing" | "Ready for Pickup" | "Completed"
           total?: number
