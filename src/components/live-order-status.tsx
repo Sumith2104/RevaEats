@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 export function LiveOrderStatus() {
   const { user } = useCart();
-  const [order, setOrder] = useState<{ id: string, status: Database['public']['Enums']['order_status'] } | null>(null);
+  const [order, setOrder] = useState<{ id: string, status: Database['public']['Enums']['order_status'], order_otp: number | null } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export function LiveOrderStatus() {
       </div>
       <div className="flex flex-col gap-2">
         <div className="text-sm">
-            Order ID: <span className="font-mono text-primary bg-primary/10 px-1 py-0.5 rounded-sm">{order.id}</span>
+            Pickup OTP: <span className="font-mono text-primary bg-primary/10 px-1 py-0.5 rounded-sm">{order.order_otp}</span>
         </div>
         <div className="text-sm">
             Status: <span className="font-semibold text-primary">{order.status}</span>

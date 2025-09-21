@@ -76,14 +76,14 @@ export async function placeOrder(formData: FormData): Promise<{ orderId?: string
   }
 }
 
-export async function getOrderStatus(phone: string): Promise<{ id: string, status: Database['public']['Enums']['order_status'] } | null> {
+export async function getOrderStatus(phone: string): Promise<{ id: string, status: Database['public']['Enums']['order_status'], order_otp: number | null } | null> {
     if (!phone) {
         return null;
     }
     const supabase = createSupabaseServerClient();
     const { data, error } = await supabase
         .from('orders')
-        .select('id, status')
+        .select('id, status, order_otp')
         .eq('ordered_by_phone', phone)
         .order('order_time', { ascending: false })
         .limit(1)
