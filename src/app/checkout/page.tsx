@@ -17,12 +17,21 @@ export default function CheckoutPage() {
   const { toast } = useToast();
   
   useEffect(() => {
+    // Check if we're returning from a payment attempt
+    const pendingOrderId = sessionStorage.getItem('pendingOrderId');
+    if (pendingOrderId) {
+      sessionStorage.removeItem('pendingOrderId'); // Clean up
+      clearCart();
+      router.push(`/order/${pendingOrderId}/status`);
+      return; // Stop further execution
+    }
+
     // If user is not logged in or cart is empty, redirect to menu
     if (!user.phone || cartCount === 0) {
       const timer = setTimeout(() => router.push('/menu'), 1000);
       return () => clearTimeout(timer);
     }
-  }, [user, cartCount, router]);
+  }, [user, cartCount, router, clearCart]);
 
   const handlePlaceOrder = async () => {
     setIsPlacingOrder(true);
@@ -37,14 +46,21 @@ export default function CheckoutPage() {
       const result = await placeOrder(formData);
       
       if(result?.orderId) {
+        // Store orderId before redirecting to payment
+        sessionStorage.setItem('pendingOrderId', result.orderId);
+
         toast({
           title: "Order Placed!",
-          description: "Redirecting to your order status page.",
+          description: "Redirecting to payment...",
         });
-        clearCart();
         
-        router.push(`/order/${result.orderId}/status`);
+        // Construct the UPI link and redirect
+        const upiLink = `upi://pay?pa=sumith@upi&pn=Sumith&am=${cartTotal.toFixed(2)}&cu=INR&tn=Order%20at%20RevaEats`;
+        window.location.href = upiLink;
 
+        // Note: Code below this line may not execute if the user is immediately switched to the UPI app.
+        // The useEffect hook will handle redirection when they return.
+        
       } else {
         throw new Error(result?.error || "An unknown error occurred.");
       }
@@ -55,17 +71,30 @@ export default function CheckoutPage() {
         title: "Submission Error",
         description: "Could not place your order. Please try again."
       });
+      // Clean up if order placement failed before payment
+      sessionStorage.removeItem('pendingOrderId');
     } finally {
-      setIsPlacingOrder(false);
+      // Don't set isPlacingOrder to false here, as the page will redirect or be left.
+      // It will reset on next page load.
     }
   }
 
-  if (!user.phone || cartCount === 0) {
+  if ((!user.phone || cartCount === 0) && !sessionStorage.getItem('pendingOrderId')) {
     return (
         <div className="flex flex-col items-center justify-center text-center py-20">
             <h2 className="text-2xl font-semibold mb-4 font-headline">{!user.phone ? "Please log in to continue." : "Your cart is empty"}</h2>
             <p className="text-muted-foreground mb-4">Redirecting you to the menu...</p>
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    );
+  }
+  
+  if (sessionStorage.getItem('pendingOrderId')) {
+     return (
+        <div className="flex flex-col items-center justify-center text-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <h2 className="text-2xl font-semibold mt-4 font-headline">Finalizing your order...</h2>
+            <p className="text-muted-foreground">Please wait while we confirm your payment.</p>
         </div>
     );
   }
@@ -105,7 +134,7 @@ export default function CheckoutPage() {
             </div>
              <Button onClick={handlePlaceOrder} className="w-full" disabled={isPlacingOrder}>
               {isPlacingOrder && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isPlacingOrder ? 'Placing Order...' : 'Place Order & Pay'}
+              {isPlacingOrder ? 'Processing...' : 'Place Order & Pay'}
             </Button>
         </div>
     </div>
