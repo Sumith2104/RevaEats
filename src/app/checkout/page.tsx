@@ -14,24 +14,23 @@ export default function CheckoutPage() {
   const { cartItems, cartTotal, cartCount, user, clearCart } = useCart();
   const router = useRouter();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
   const { toast } = useToast();
   
-  useEffect(() => {
-    // Check if we're returning from a payment attempt
-    const pendingOrderId = sessionStorage.getItem('pendingOrderId');
-    if (pendingOrderId) {
-      sessionStorage.removeItem('pendingOrderId'); // Clean up
-      clearCart();
-      router.push(`/order/${pendingOrderId}/status`);
-      return; // Stop further execution
-    }
+  // This state will hold the order ID while we 'wait' for payment confirmation
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
 
-    // If user is not logged in or cart is empty, redirect to menu
-    if (!user.phone || cartCount === 0) {
+  useEffect(() => {
+    // On page load, check if we were in the middle of a payment flow
+    const storedOrderId = sessionStorage.getItem('pendingOrderId');
+    if (storedOrderId) {
+      setPendingOrderId(storedOrderId);
+    } else if (!user.phone || cartCount === 0) {
+      // If not in payment flow and cart is empty or no user, redirect
       const timer = setTimeout(() => router.push('/menu'), 1000);
       return () => clearTimeout(timer);
     }
-  }, [user, cartCount, router, clearCart]);
+  }, [user, cartCount, router]);
 
   const handlePlaceOrder = async () => {
     setIsPlacingOrder(true);
@@ -46,20 +45,18 @@ export default function CheckoutPage() {
       const result = await placeOrder(formData);
       
       if(result?.orderId) {
-        // Store orderId before redirecting to payment
+        // Store orderId to survive the "redirect" to payment app
         sessionStorage.setItem('pendingOrderId', result.orderId);
+        setPendingOrderId(result.orderId);
 
         toast({
           title: "Order Placed!",
-          description: "Redirecting to payment...",
+          description: "Proceed to confirm your payment.",
         });
         
-        // Construct the UPI link and redirect
-        const upiLink = `upi://pay?pa=sumith@upi&pn=Sumith&am=${cartTotal.toFixed(2)}&cu=INR&tn=Order%20at%20RevaEats`;
-        window.location.href = upiLink;
-
-        // Note: Code below this line may not execute if the user is immediately switched to the UPI app.
-        // The useEffect hook will handle redirection when they return.
+        // This would be the redirect to a real payment app
+        // const upiLink = `upi://pay?pa=sumith@upi&pn=Sumith&am=${cartTotal.toFixed(2)}&cu=INR&tn=Order%20at%20RevaEats`;
+        // window.location.href = upiLink;
         
       } else {
         throw new Error(result?.error || "An unknown error occurred.");
@@ -71,15 +68,28 @@ export default function CheckoutPage() {
         title: "Submission Error",
         description: "Could not place your order. Please try again."
       });
-      // Clean up if order placement failed before payment
+      // Clean up if order placement failed
       sessionStorage.removeItem('pendingOrderId');
+      setPendingOrderId(null);
     } finally {
-      // Don't set isPlacingOrder to false here, as the page will redirect or be left.
-      // It will reset on next page load.
+       setIsPlacingOrder(false);
     }
   }
 
-  if ((!user.phone || cartCount === 0) && !sessionStorage.getItem('pendingOrderId')) {
+  const handleConfirmMockPayment = () => {
+    if (!pendingOrderId) return;
+    setIsConfirmingPayment(true);
+
+    // Mock a 2-second payment processing delay
+    setTimeout(() => {
+      sessionStorage.removeItem('pendingOrderId');
+      clearCart();
+      router.push(`/order/${pendingOrderId}/status`);
+    }, 2000);
+  };
+
+  // State 1: User has not started checkout, or cart is empty
+  if (!pendingOrderId && (!user.phone || cartCount === 0)) {
     return (
         <div className="flex flex-col items-center justify-center text-center py-20">
             <h2 className="text-2xl font-semibold mb-4 font-headline">{!user.phone ? "Please log in to continue." : "Your cart is empty"}</h2>
@@ -89,16 +99,22 @@ export default function CheckoutPage() {
     );
   }
   
-  if (sessionStorage.getItem('pendingOrderId')) {
+  // State 2: User has been sent to payment and has returned.
+  if (pendingOrderId) {
      return (
         <div className="flex flex-col items-center justify-center text-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <h2 className="text-2xl font-semibold mt-4 font-headline">Finalizing your order...</h2>
-            <p className="text-muted-foreground">Please wait while we confirm your payment.</p>
+            <p className="text-muted-foreground mb-6">You have been redirected to the payment app. Once payment is done, confirm below.</p>
+            <Button onClick={handleConfirmMockPayment} disabled={isConfirmingPayment}>
+              {isConfirmingPayment && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isConfirmingPayment ? 'Confirming...' : 'Confirm Mock Payment'}
+            </Button>
         </div>
     );
   }
 
+  // State 3: Default checkout view
   return (
     <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold font-headline mb-8 text-center">Checkout</h1>
