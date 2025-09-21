@@ -1,8 +1,25 @@
 import { MenuItemCard } from '@/components/menu-item-card';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { MenuItem } from '@/lib/types';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Terminal } from 'lucide-react';
 
 export default async function MenuPage() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === '' || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === '') {
+    return (
+      <div className="text-center py-20">
+         <Alert variant="destructive" className="max-w-2xl mx-auto">
+          <Terminal className="h-4 w-4" />
+          <AlertTitle>Configuration Error</AlertTitle>
+          <AlertDescription>
+            <p>Your Supabase environment variables are missing or empty.</p>
+            <p>Please add <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> with valid values to your <code>.env.local</code> file.</p>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   const supabase = createSupabaseServerClient();
   const { data: menuItems, error } = await supabase.from('menu_items').select('*').eq('is_available', true);
 
