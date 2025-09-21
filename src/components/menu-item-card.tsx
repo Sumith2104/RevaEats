@@ -39,7 +39,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
 
   return (
     <Card className="flex flex-col overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl">
-        <div className="relative w-full aspect-[4/3]">
+        <div className="relative w-full h-40">
             <Image
             src={item.image_url}
             alt={item.name}
