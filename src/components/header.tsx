@@ -76,7 +76,7 @@ export function Header() {
                 </PopoverContent>
               </Popover>
               <Button asChild variant="ghost" className="h-10 w-10 rounded-full">
-                <Link href="#">
+                <Link href="/profile">
                   <User className="w-6 h-6" />
                   <span className="sr-only">View Profile</span>
                 </Link>
