@@ -39,12 +39,12 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
 
   return (
     <Card className="flex flex-col overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1">
-      <div className="relative w-full h-24 sm:h-32 md:h-48">
+      <div className="relative w-full h-32 md:h-48">
         <Image
           src={item.image_url}
           alt={item.name}
           fill
-          sizes="(max-width: 768px) 33vw, 33vw"
+          sizes="(max-width: 640px) 50vw, 33vw"
           className="object-cover"
           data-ai-hint={item.name.split(' ').slice(0, 2).join(' ')}
         />
