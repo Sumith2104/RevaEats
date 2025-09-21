@@ -80,12 +80,9 @@ export default function CheckoutPage() {
     if (!pendingOrderId) return;
     setIsConfirmingPayment(true);
 
-    // Mock a 2-second payment processing delay
-    setTimeout(() => {
-      sessionStorage.removeItem('pendingOrderId');
-      clearCart();
-      router.push(`/order/${pendingOrderId}/status`);
-    }, 2000);
+    clearCart();
+    router.push(`/order/${pendingOrderId}/status`);
+    sessionStorage.removeItem('pendingOrderId');
   };
 
   // State 1: User has not started checkout, or cart is empty
