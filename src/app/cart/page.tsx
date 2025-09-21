@@ -30,7 +30,7 @@ export default function CartPage() {
         {cartItems.map(({ item, quantity }) => (
           <Card key={item.id} className="flex items-center p-4">
             <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-md overflow-hidden flex-shrink-0">
-              <Image src={item.image} alt={item.name} fill className="object-cover" data-ai-hint={item.imageHint} sizes="96px" />
+              <Image src={item.image_url} alt={item.name} fill className="object-cover" data-ai-hint={item.name.split(' ').slice(0, 2).join(' ')} sizes="96px" />
             </div>
             <div className="flex-grow ml-4">
               <h3 className="font-semibold">{item.name}</h3>

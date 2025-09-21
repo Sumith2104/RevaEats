@@ -45,7 +45,7 @@ export default function CheckoutPage() {
                         {cartItems.map(({ item, quantity }) => (
                             <div key={item.id} className="flex items-center gap-4">
                                 <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
-                                    <Image src={item.image} alt={item.name} fill className="object-cover" data-ai-hint={item.imageHint} sizes="64px"/>
+                                    <Image src={item.image_url} alt={item.name} fill className="object-cover" data-ai-hint={item.name.split(' ').slice(0, 2).join(' ')} sizes="64px"/>
                                 </div>
                                 <div className="flex-grow">
                                     <p className="font-semibold">{item.name}</p>

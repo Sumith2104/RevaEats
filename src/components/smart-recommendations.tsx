@@ -5,17 +5,19 @@ import { Wand2, Loader2, PlusCircle } from 'lucide-react';
 import { useCart } from '@/hooks/use-cart';
 import { Button } from '@/components/ui/button';
 import { getSmartFoodRecommendations } from '@/ai/flows/smart-food-recommendations';
-import { menuItems as allMenuItems } from '@/lib/data';
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import Image from 'next/image';
+import type { MenuItem } from '@/lib/types';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export function SmartRecommendations() {
   const { cartItems, addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
-  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [recommendations, setRecommendations] = useState<MenuItem[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const supabase = createSupabaseBrowserClient();
 
   const handleGetRecommendations = async () => {
     setIsLoading(true);
@@ -23,9 +25,14 @@ export function SmartRecommendations() {
       const currentCartItems = cartItems.map(ci => ci.item.name);
       const result = await getSmartFoodRecommendations({ cartItems: currentCartItems });
       
+      const { data: allMenuItems, error: dbError } = await supabase.from('menu_items').select('*');
+
+      if (dbError) throw dbError;
+
       const newRecommendations = result.recommendations.filter(
         rec => !currentCartItems.includes(rec) && allMenuItems.some(item => item.name === rec)
-      );
+      ).map(recName => allMenuItems.find(item => item.name === recName)).filter(Boolean) as MenuItem[];
+
 
       setRecommendations(newRecommendations);
       if (newRecommendations.length > 0) {
@@ -48,12 +55,9 @@ export function SmartRecommendations() {
     }
   };
 
-  const handleAddRecommendation = (itemName: string) => {
-    const itemToAdd = allMenuItems.find(item => item.name === itemName);
-    if (itemToAdd) {
-      addToCart(itemToAdd);
-      setRecommendations(prev => prev.filter(rec => rec !== itemName));
-    }
+  const handleAddRecommendation = (itemToAdd: MenuItem) => {
+    addToCart(itemToAdd);
+    setRecommendations(prev => prev.filter(rec => rec.id !== itemToAdd.id));
   };
 
   return (
@@ -76,22 +80,21 @@ export function SmartRecommendations() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {recommendations.map(recName => {
-              const recItem = allMenuItems.find(item => item.name === recName);
+            {recommendations.map(recItem => {
               if (!recItem) return null;
               
               return (
                 <div key={recItem.id} className="flex items-center justify-between gap-4 p-2 rounded-lg hover:bg-secondary">
                   <div className="flex items-center gap-4">
                     <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
-                       <Image src={recItem.image} alt={recItem.name} fill className="object-cover" data-ai-hint={recItem.imageHint} sizes="64px"/>
+                       <Image src={recItem.image_url} alt={recItem.name} fill className="object-cover" data-ai-hint={recItem.name.split(' ').slice(0, 2).join(' ')} sizes="64px"/>
                     </div>
                     <div>
                       <h4 className="font-semibold">{recItem.name}</h4>
                       <p className="text-sm text-muted-foreground">₹{recItem.price.toFixed(2)}</p>
                     </div>
                   </div>
-                  <Button size="sm" onClick={() => handleAddRecommendation(recItem.name)}>
+                  <Button size="sm" onClick={() => handleAddRecommendation(recItem)}>
                     <PlusCircle className="mr-2 h-4 w-4" /> Add
                   </Button>
                 </div>

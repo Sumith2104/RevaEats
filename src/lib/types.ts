@@ -1,11 +1,11 @@
 export type MenuItem = {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;
   category: string;
-  image: string;
-  imageHint: string;
+  image_url: string;
+  is_available: boolean;
 };
 
 export type CartItem = {

@@ -18,12 +18,12 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
     <Card className="flex flex-col overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1">
       <div className="relative w-full h-48">
         <Image
-          src={item.image}
+          src={item.image_url}
           alt={item.name}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover"
-          data-ai-hint={item.imageHint}
+          data-ai-hint={item.name.split(' ').slice(0, 2).join(' ')}
         />
       </div>
       <CardHeader>

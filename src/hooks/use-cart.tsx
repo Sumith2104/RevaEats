@@ -7,8 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (item: MenuItem) => void;
-  removeFromCart: (itemId: number) => void;
-  updateQuantity: (itemId: number, quantity: number) => void;
+  removeFromCart: (itemId: string) => void;
+  updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
   cartCount: number;
   cartTotal: number;
@@ -37,11 +37,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [toast]);
 
-  const removeFromCart = useCallback((itemId: number) => {
+  const removeFromCart = useCallback((itemId: string) => {
     setCartItems(prevItems => prevItems.filter(cartItem => cartItem.item.id !== itemId));
   }, []);
 
-  const updateQuantity = useCallback((itemId: number, quantity: number) => {
+  const updateQuantity = useCallback((itemId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(itemId);
     } else {
