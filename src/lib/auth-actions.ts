@@ -13,7 +13,7 @@ const loginSchema = z.object({
     ),
 });
 
-export async function login(prevState: any, formData: FormData) {
+export async function login(prevState: any, formData: FormData): Promise<{ message: string | null, phone?: string | null }> {
   const supabase = createSupabaseServerClient();
   const validatedFields = loginSchema.safeParse({
     phone: formData.get("phone"),
@@ -21,45 +21,43 @@ export async function login(prevState: any, formData: FormData) {
 
   if (!validatedFields.success) {
     return {
-      message: validatedFields.error.flatten().fieldErrors.phone?.[0],
+      message: validatedFields.error.flatten().fieldErrors.phone?.[0] || null,
     };
   }
 
   const { phone } = validatedFields.data;
 
   try {
-    // 1. Check if user exists, without throwing an error
     const { data: user, error: selectError } = await supabase
       .from("users")
       .select("phone")
       .eq("phone", phone)
       .maybeSingle();
 
-    // Handle unexpected database errors during select
     if (selectError) {
       console.error("Supabase select error:", selectError);
       return { message: "Database error. Could not check user." };
     }
 
-    // 2. If user does not exist, create them
     if (!user) {
       const { error: insertError } = await supabase
         .from("users")
         .insert({ name: "New User", phone: phone });
 
-      // Handle unexpected database errors during insert
       if (insertError) {
         console.error("Supabase insert error:", insertError);
         return { message: "Database error. Could not create user." };
       }
     }
+    
+    // On successful login/creation, we don't redirect from the server action anymore.
+    // Instead, we return the phone number to the client to update the state.
+    return { message: null, phone: phone };
+
   } catch (error) {
     console.error("Unexpected error in login flow:", error);
     return {
       message: "An unexpected error occurred. Please try again.",
     };
   }
-
-  // 3. Redirect to the menu on success
-  redirect("/menu");
 }

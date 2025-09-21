@@ -1,39 +1,72 @@
 "use server";
 
 import { z } from 'zod';
-import { redirect } from 'next/navigation';
+import { createSupabaseServerClient } from './supabase/server';
+import type { CartItem } from './types';
 
 const checkoutSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   phone: z.string().regex(/^\d{10}$/, { message: "Please enter a valid 10-digit phone number." }),
   cart: z.string() // JSON string of cart items
 });
 
-export async function placeOrder(formData: FormData) {
+export async function placeOrder(formData: FormData): Promise<{ orderId?: string, error?: string }> {
   const rawFormData = Object.fromEntries(formData.entries());
   
   const validatedFields = checkoutSchema.safeParse(rawFormData);
   
   if (!validatedFields.success) {
-    // In a real app with more complex state, you might return errors.
-    // For this flow, we rely on client-side validation and the server action redirect.
-    // A failed validation here implies a non-standard submission.
+    const errorMessage = validatedFields.error.flatten().fieldErrors.phone?.[0] || 'Invalid data provided.';
     console.error("Server-side validation failed:", validatedFields.error);
-    // We could redirect back to checkout with an error query param.
-    // For now, we'll just stop.
-    return;
+    return { error: errorMessage };
   }
+  
+  const { phone, cart } = validatedFields.data;
+  const cartItems: CartItem[] = JSON.parse(cart);
+  const total = cartItems.reduce((acc, { item, quantity }) => acc + item.price * quantity, 0);
 
-  // In a real app, you would do the following with Supabase:
-  // 1. Get the current user (if any)
-  // 2. Parse `validatedFields.data.cart`
-  // 3. Create a new `orders` record with user info, status 'New', and total price.
-  // 4. Create `order_items` records for each item in the cart.
-  // 5. Potentially, integrate with a payment gateway.
+  const supabase = createSupabaseServerClient();
 
-  // For this demo, we'll simulate a successful order and generate a random order ID.
-  const orderId = Math.random().toString(36).substr(2, 9).toUpperCase();
+  try {
+    // 1. Create a new `orders` record
+    const { data: orderData, error: orderError } = await supabase
+      .from('orders')
+      .insert({
+        ordered_by_phone: phone,
+        status: 'New',
+        total: total,
+      })
+      .select()
+      .single();
 
-  // Redirect to the order status page
-  redirect(`/order/${orderId}/status`);
+    if (orderError) {
+      console.error("Supabase order insert error:", orderError);
+      return { error: "Could not create your order in the database." };
+    }
+
+    const orderId = orderData.id;
+
+    // 2. Create `order_items` records for each item in the cart
+    const orderItemsToInsert = cartItems.map(({ item, quantity }) => ({
+      order_id: orderId,
+      menu_item_id: item.id,
+      quantity: quantity,
+      price: item.price,
+    }));
+
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .insert(orderItemsToInsert);
+
+    if (itemsError) {
+      // In a real app, you might want to roll back the order creation here.
+      console.error("Supabase order_items insert error:", itemsError);
+      return { error: "Could not save order items to the database." };
+    }
+
+    return { orderId };
+
+  } catch (error) {
+    console.error("Unexpected error placing order:", error);
+    return { error: "An unexpected error occurred while placing your order." };
+  }
 }

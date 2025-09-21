@@ -4,6 +4,10 @@ import React, { createContext, useContext, useState, useMemo, useCallback } from
 import type { CartItem, MenuItem } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast";
 
+interface User {
+  phone: string | null;
+}
+
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (item: MenuItem) => void;
@@ -12,12 +16,16 @@ interface CartContextType {
   clearCart: () => void;
   cartCount: number;
   cartTotal: number;
+  user: User;
+  loginUser: (phone: string) => void;
+  logoutUser: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [user, setUser] = useState<User>({ phone: null });
   const { toast } = useToast();
 
   const addToCart = useCallback((itemToAdd: MenuItem) => {
@@ -57,6 +65,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCartItems([]);
   }, []);
 
+  const loginUser = useCallback((phone: string) => {
+    setUser({ phone });
+  }, []);
+
+  const logoutUser = useCallback(() => {
+    setUser({ phone: null });
+    clearCart();
+  }, [clearCart]);
+
   const cartCount = useMemo(() => {
     return cartItems.reduce((count, cartItem) => count + cartItem.quantity, 0);
   }, [cartItems]);
@@ -72,8 +89,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateQuantity,
     clearCart,
     cartCount,
-    cartTotal
-  }), [cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal]);
+    cartTotal,
+    user,
+    loginUser,
+    logoutUser,
+  }), [cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal, user, loginUser, logoutUser]);
 
   return (
     <CartContext.Provider value={value}>

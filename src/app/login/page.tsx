@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { login } from "@/lib/auth-actions";
 import {
   Card,
@@ -14,16 +14,29 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 import { SubmitButton } from "@/components/submit-button";
+import { useCart } from "@/hooks/use-cart";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const initialState = { message: null };
+  const { loginUser } = useCart();
+  const router = useRouter();
+  
+  const initialState = { message: null, phone: null };
   const [state, dispatch] = useActionState(login, initialState);
+
+  useEffect(() => {
+    if (state.phone) {
+      loginUser(state.phone);
+      router.push('/menu');
+    }
+  }, [state, loginUser, router]);
+
 
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
+          <CardTitle className="font-headline text-2xl">Welcome</CardTitle>
           <CardDescription>
             Enter your phone number to continue.
           </CardDescription>
