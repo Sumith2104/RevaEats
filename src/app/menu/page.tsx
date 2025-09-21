@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { MenuItem } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
+import { LoginPromptDialog } from '@/components/login-prompt-dialog';
 
 export default async function MenuPage() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === '' || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === '') {
@@ -34,6 +35,7 @@ export default async function MenuPage() {
 
   return (
     <div className="space-y-12">
+      <LoginPromptDialog />
       <header className="text-center">
         <h1 className="text-4xl font-extrabold font-headline tracking-tight lg:text-5xl">Our Menu</h1>
         <p className="mt-4 text-lg text-muted-foreground">Fresh, fast, and flavorful food, right on campus.</p>
