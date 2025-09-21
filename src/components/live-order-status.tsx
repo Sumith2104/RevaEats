@@ -21,7 +21,11 @@ export function LiveOrderStatus() {
     const fetchStatus = async () => {
       try {
         const latestOrder = await getOrderStatus(user.phone!);
-        setOrder(latestOrder);
+        if (latestOrder && latestOrder.status !== 'Completed') {
+          setOrder(latestOrder);
+        } else {
+          setOrder(null);
+        }
       } catch (error) {
         console.error("Failed to fetch order status:", error);
       } finally {
