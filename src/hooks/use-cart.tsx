@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
 import type { CartItem, MenuItem } from '@/lib/types';
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,6 +28,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [user, setUser] = useState<User>({ phone: null });
   const { toast } = useToast();
+
+  useEffect(() => {
+    // On initial load, try to get user from localStorage
+    try {
+      const storedPhone = localStorage.getItem('userPhone');
+      if (storedPhone) {
+        setUser({ phone: storedPhone });
+      }
+    } catch (error) {
+      console.error("Could not access localStorage:", error);
+    }
+  }, []);
+
 
   const addToCart = useCallback((itemToAdd: MenuItem) => {
     setCartItems(prevItems => {
@@ -67,10 +81,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginUser = useCallback((phone: string) => {
     setUser({ phone });
+    try {
+      localStorage.setItem('userPhone', phone);
+    } catch (error) {
+      console.error("Could not access localStorage:", error);
+    }
   }, []);
 
   const logoutUser = useCallback(() => {
     setUser({ phone: null });
+    try {
+      localStorage.removeItem('userPhone');
+    } catch (error) {
+      console.error("Could not access localStorage:", error);
+    }
     clearCart();
   }, [clearCart]);
 
