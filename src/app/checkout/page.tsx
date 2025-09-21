@@ -55,7 +55,7 @@ export default function CheckoutPage() {
         });
         
         // This would be the redirect to a real payment app
-        const upiLink = `upi://pay?pa=sumith@upi&pn=Sumith&am=${cartTotal.toFixed(2)}&cu=INR&tn=Order%20at%20RevaEats`;
+        const upiLink = `upi://pay?pa=sumithsumith4567890-1@oksbi&pn=Sumith&am=${cartTotal.toFixed(2)}&cu=INR&tn=Order%20at%20RevaEats`;
         window.location.href = upiLink;
         
       } else {
