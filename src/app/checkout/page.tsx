@@ -38,11 +38,25 @@ export default function CheckoutPage() {
       
       if(result?.orderId) {
         toast({
-          title: "Order Placed!",
-          description: "You will be redirected shortly.",
+          title: "Order Placed! Redirecting to payment...",
+          description: "You will be redirected to the order status page after payment.",
         });
         clearCart();
-        router.push(`/order/${result.orderId}/status`);
+        
+        const upiId = 'sumithsumith4567890-1@oksbi';
+        const payeeName = 'RevaEats';
+        const orderId = result.orderId;
+        const amount = cartTotal.toFixed(2);
+        const note = `Payment for Order #${orderId}`;
+
+        // The URL for the user to be redirected to after payment
+        const redirectUrl = `${window.location.origin}/order/${orderId}/status`;
+
+        const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&tid=${encodeURIComponent(orderId)}&am=${amount}&tn=${encodeURIComponent(note)}&url=${encodeURIComponent(redirectUrl)}`;
+        
+        // Redirect to the UPI app
+        window.location.href = upiUrl;
+
       } else {
         throw new Error(result?.error || "An unknown error occurred.");
       }
@@ -103,7 +117,7 @@ export default function CheckoutPage() {
             </div>
              <Button onClick={handlePlaceOrder} className="w-full" disabled={isPlacingOrder}>
               {isPlacingOrder && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
+              {isPlacingOrder ? 'Placing Order...' : 'Place Order & Pay'}
             </Button>
         </div>
     </div>
