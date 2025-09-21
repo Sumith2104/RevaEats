@@ -5,7 +5,7 @@ import { Header } from '@/components/header';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Campus Kitchen Express',
+  title: 'RevaEats',
   description: 'The fastest food delivery on campus.',
 };
 
