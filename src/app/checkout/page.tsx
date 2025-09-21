@@ -25,8 +25,8 @@ export default function CheckoutPage() {
     const storedOrderId = sessionStorage.getItem('pendingOrderId');
     if (storedOrderId) {
       setPendingOrderId(storedOrderId);
-    } else if (!user.phone || cartCount === 0) {
-      // If not in payment flow and cart is empty or no user, redirect
+    } else if (cartCount === 0 && !storedOrderId) {
+      // If not in payment flow and cart is empty, redirect
       const timer = setTimeout(() => router.push('/menu'), 1000);
       return () => clearTimeout(timer);
     }
