@@ -38,24 +38,12 @@ export default function CheckoutPage() {
       
       if(result?.orderId) {
         toast({
-          title: "Order Placed! Redirecting to payment...",
-          description: "You will be redirected to the order status page after payment.",
+          title: "Order Placed!",
+          description: "Redirecting to your order status page.",
         });
         clearCart();
         
-        const upiId = 'sumithsumith4567890-1@oksbi';
-        const payeeName = 'RevaEats';
-        const orderId = result.orderId;
-        const amount = cartTotal.toFixed(2);
-        const note = `Payment for Order #${orderId}`;
-
-        // The URL for the user to be redirected to after payment
-        const redirectUrl = `${window.location.origin}/order/${orderId}/status`;
-
-        const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&tid=${encodeURIComponent(orderId)}&am=${amount}&tn=${encodeURIComponent(note)}&url=${encodeURIComponent(redirectUrl)}`;
-        
-        // Redirect to the UPI app
-        window.location.href = upiUrl;
+        router.push(`/order/${result.orderId}/status`);
 
       } else {
         throw new Error(result?.error || "An unknown error occurred.");
