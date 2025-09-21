@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { createSupabaseServerClient } from './supabase/server';
 import type { CartItem } from './types';
+import type { Database } from './supabase/types';
 
 const checkoutSchema = z.object({
   phone: z.string().regex(/^\d{10}$/, { message: "Please enter a valid 10-digit phone number." }),
@@ -69,4 +70,22 @@ export async function placeOrder(formData: FormData): Promise<{ orderId?: string
     console.error("Unexpected error placing order:", error);
     return { error: "An unexpected error occurred while placing your order." };
   }
+}
+
+export async function getOrderStatus(phone: string): Promise<{ id: string, status: Database['public']['Enums']['order_status'] } | null> {
+    if (!phone) {
+        return null;
+    }
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+        .from('orders')
+        .select('id, status')
+        .eq('ordered_by_phone', phone)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+    if (error || !data) {
+        return null;
+    }
+    return data;
 }

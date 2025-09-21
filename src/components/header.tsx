@@ -7,6 +7,13 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { LiveOrderStatus } from "./live-order-status";
+
 
 export function Header() {
   const { cartCount, user, logoutUser } = useCart();
@@ -48,7 +55,7 @@ export function Header() {
         <Link href="/menu" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
           <Flame className="w-7 h-7" />
           <h1 className="text-xl font-bold font-headline tracking-tight">
-            Campus Kitchen Express
+            RevaEats
           </h1>
         </Link>
         <nav className="flex items-center gap-2">
@@ -57,12 +64,17 @@ export function Header() {
               <span className="text-sm text-muted-foreground hidden sm:inline">
                 {user.phone}
               </span>
-              <Button asChild variant="ghost" className="h-10 w-10 rounded-full">
-                <Link href="#">
-                  <Bell className="w-6 h-6" />
-                  <span className="sr-only">View Notifications</span>
-                </Link>
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" className="h-10 w-10 rounded-full">
+                    <Bell className="w-6 h-6" />
+                    <span className="sr-only">View Notifications</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <LiveOrderStatus />
+                </PopoverContent>
+              </Popover>
               <Button asChild variant="ghost" className="h-10 w-10 rounded-full">
                 <Link href="#">
                   <User className="w-6 h-6" />
@@ -90,3 +102,4 @@ export function Header() {
       </div>
     </header>
   );
+}
