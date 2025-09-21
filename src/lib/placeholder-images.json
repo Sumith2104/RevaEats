@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "burger",
+      "description": "A delicious veggie burger",
+      "imageUrl": "https://picsum.photos/seed/burger/600/400",
+      "imageHint": "veggie burger"
+    },
+    {
+      "id": "fries",
+      "description": "Crispy masala fries",
+      "imageUrl": "https://picsum.photos/seed/fries/600/400",
+      "imageHint": "masala fries"
+    },
+    {
+      "id": "wrap",
+      "description": "A tasty paneer tikka wrap",
+      "imageUrl": "https://picsum.photos/seed/wrap/600/400",
+      "imageHint": "paneer wrap"
+    },
+    {
+      "id": "lassi",
+      "description": "A refreshing mango lassi",
+      "imageUrl": "https://picsum.photos/seed/lassi/600/400",
+      "imageHint": "mango lassi"
+    },
+    {
+      "id": "chaat",
+      "description": "Spicy and tangy samosa chaat",
+      "imageUrl": "https://picsum.photos/seed/chaat/600/400",
+      "imageHint": "samosa chaat"
+    },
+    {
+      "id": "dessert",
+      "description": "Sweet gulab jamun",
+      "imageUrl": "https://picsum.photos/seed/dessert/600/400",
+      "imageHint": "gulab jamun"
+    },
+    {
+      "id": "pizza",
+      "description": "Classic margherita pizza",
+      "imageUrl": "https://picsum.photos/seed/pizza/600/400",
+      "imageHint": "margherita pizza"
+    },
+    {
+      "id": "coke",
+      "description": "A can of coke",
+      "imageUrl": "https://picsum.photos/seed/coke/600/400",
+      "imageHint": "coke can"
+    }
+  ]
 }
