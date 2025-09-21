@@ -28,7 +28,7 @@ export async function placeOrder(formData: FormData): Promise<{ orderId?: string
   const supabase = createSupabaseServerClient();
   
   // Generate a 4-digit OTP
-  const orderOtp = Math.floor(1000 + Math.random() * 9000).toString();
+  const orderOtp = Math.floor(1000 + Math.random() * 9000);
 
   try {
     // 1. Create a new `orders` record
