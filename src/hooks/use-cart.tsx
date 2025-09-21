@@ -21,6 +21,7 @@ interface CartContextType {
   user: User;
   loginUser: (phone: string) => void;
   logoutUser: () => void;
+  isLoadingUser: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -28,14 +29,17 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [user, setUser] = useState<User>({ phone: null });
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
+    setIsLoadingUser(true);
     // On initial load, try to get user from cookie
     const storedPhone = getCookie('userPhone');
     if (storedPhone) {
       setUser({ phone: storedPhone });
     }
+    setIsLoadingUser(false);
   }, []);
 
 
@@ -106,7 +110,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     loginUser,
     logoutUser,
-  }), [cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal, user, loginUser, logoutUser]);
+    isLoadingUser,
+  }), [cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal, user, loginUser, logoutUser, isLoadingUser]);
 
   return (
     <CartContext.Provider value={value}>

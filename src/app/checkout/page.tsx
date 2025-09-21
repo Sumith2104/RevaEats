@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
 export default function CheckoutPage() {
-  const { cartItems, cartTotal, cartCount, user, clearCart } = useCart();
+  const { cartItems, cartTotal, cartCount, user, clearCart, isLoadingUser } = useCart();
   const router = useRouter();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
@@ -85,8 +85,17 @@ export default function CheckoutPage() {
     router.push(`/order/${pendingOrderId}/status`);
   };
 
+  if(isLoadingUser) {
+    return (
+        <div className="flex flex-col items-center justify-center text-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground mt-4">Loading your details...</p>
+        </div>
+    );
+  }
+
   // State 1: User has not started checkout, or cart is empty
-  if (!pendingOrderId && (!user.phone || cartCount === 0)) {
+  if (!pendingOrderId && !isLoadingUser && (!user.phone || cartCount === 0)) {
     return (
         <div className="flex flex-col items-center justify-center text-center py-20">
             <h2 className="text-2xl font-semibold mb-4 font-headline">{!user.phone ? "Please log in to continue." : "Your cart is empty"}</h2>
