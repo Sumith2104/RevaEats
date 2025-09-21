@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 
 const checkoutFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  phone: z.string().regex(/^[6-9]\d{9}$/, { message: "Please enter a valid 10-digit Indian mobile number." }),
+  phone: z.string().regex(/^\d{10}$/, { message: "Please enter a valid 10-digit phone number." }),
 });
 
 type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;

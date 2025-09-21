@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 
 const checkoutSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  phone: z.string().regex(/^[6-9]\d{9}$/, { message: "Please enter a valid 10-digit Indian mobile number." }),
+  phone: z.string().regex(/^\d{10}$/, { message: "Please enter a valid 10-digit phone number." }),
   cart: z.string() // JSON string of cart items
 });
 

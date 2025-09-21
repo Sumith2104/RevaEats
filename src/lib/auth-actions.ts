@@ -8,8 +8,8 @@ const loginSchema = z.object({
   phone: z
     .string()
     .regex(
-      /^[6-9]\d{9}$/,
-      "Please enter a valid 10-digit Indian mobile number."
+      /^\d{10}$/,
+      "Please enter a valid 10-digit phone number."
     ),
 });
 
